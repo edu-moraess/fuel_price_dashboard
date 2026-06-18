@@ -1,22 +1,24 @@
-# pages/3_Expectativas_Impl.py
+# pages/4_Spillovers_Risco.py
 
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+import plotly.express as px
+from statsmodels.tsa.vector_ar.var_model import VAR
 
 from src.load_data import filter_data_by_selection
-from src.config import IMPLIED_EXPECT_SHORT_WINDOW, IMPLIED_EXPECT_LONG_WINDOW
+from src.config import RISK_SPILLOVER_VAR_LAGS
 from src.session import init_session
 from src.theme import inject_theme, apply_plotly_theme, COLORS
 
-st.set_page_config(page_title="Implied Expectations", page_icon="🔮", layout="wide")
+st.set_page_config(page_title="Risk Spillovers", page_icon="🔗", layout="wide")
 inject_theme()
 
-st.markdown('<h1>Implied Expectations</h1>', unsafe_allow_html=True)
+st.markdown('<h1>Spillovers & Risk Propagation</h1>', unsafe_allow_html=True)
 st.markdown(
     f'<p style="color:{COLORS["text_secondary"]};font-size:0.78rem;letter-spacing:0.06em;'
-    f'margin-bottom:20px;">Moving Average Signals · Expectation Index · Momentum Detection</p>',
+    f'margin-bottom:20px;">VAR Model · Covariance Structure · Correlation Network</p>',
     unsafe_allow_html=True,
 )
 
@@ -28,15 +30,18 @@ st.sidebar.markdown(
     unsafe_allow_html=True,
 )
 
-country = st.sidebar.selectbox("Country", sorted(df_full['COUNTRY'].unique()))
+countries = st.sidebar.multiselect(
+    "Countries",
+    sorted(df_full['COUNTRY'].unique()),
+    default=sorted(df_full['COUNTRY'].unique())[:3],
+)
 product = st.sidebar.selectbox("Product", ['diesel_usd', 'gasoline_usd'])
 start   = st.sidebar.date_input("Start Date", pd.to_datetime("2018-01-01"))
 end     = st.sidebar.date_input("End Date",   pd.to_datetime("2024-12-01"))
-short_w = st.sidebar.slider("Short Window (months)", 1, 24, IMPLIED_EXPECT_SHORT_WINDOW)
-long_w  = st.sidebar.slider("Long Window (months)",  6, 60, IMPLIED_EXPECT_LONG_WINDOW)
+lags    = st.sidebar.slider("VAR Lags", 1, 5, RISK_SPILLOVER_VAR_LAGS)
 
 df_filtered = filter_data_by_selection(
-    df_full, countries=[country], products=[product],
+    df_full, countries=countries, products=[product],
     start_date=start.strftime("%Y-%m-%d"), end_date=end.strftime("%Y-%m-%d"),
 )
 
@@ -44,51 +49,60 @@ if df_filtered.empty:
     st.warning("No data available for the selected filters.")
     st.stop()
 
-prices   = df_filtered.set_index('date')[product]
-ma_short = prices.rolling(short_w).mean()
-ma_long  = prices.rolling(long_w).mean()
-spread   = ma_short - ma_long
-index    = spread / (spread.rolling(long_w).std() + 1e-8)
+pivot = df_filtered.pivot(index='date', columns='COUNTRY', values=product).dropna()
+
+if pivot.shape[1] < 2:
+    st.error("Select at least 2 countries for spillover analysis.")
+    st.stop()
+
+returns = np.log(pivot).diff().dropna()
+
+if returns.empty:
+    st.error("Insufficient data after log-differencing.")
+    st.stop()
+
+# ── Metrics ──────────────────────────────────────────────────
+corr_matrix = returns.corr()
+cov_matrix  = returns.cov()
 
 c1, c2, c3 = st.columns(3)
-c1.metric("Current Price (USD)", f"{prices.iloc[-1]:.3f}")
-c2.metric("Expectation Index", f"{index.iloc[-1]:.3f}")
-c3.metric(f"MA Spread ({short_w}m - {long_w}m)", f"{spread.iloc[-1]:.3f}")
+c1.metric("Countries", pivot.shape[1])
+c2.metric("Observations", len(returns))
+c3.metric("VAR Lags", lags)
 
 st.divider()
 
-fig = make_subplots(
-    rows=3, cols=1,
-    shared_xaxes=True,
-    vertical_spacing=0.07,
-    subplot_titles=(
-        f"Price — {country} ({product})",
-        f"Moving Averages ({short_w}m / {long_w}m)",
-        "Expectation Index (Normalized Spread)",
-    ),
+# ── Log-return series ─────────────────────────────────────────
+st.markdown('<h2>Log-Return Series</h2>', unsafe_allow_html=True)
+fig_ret = go.Figure()
+palette = [COLORS["amber"], "#2E6DA4", COLORS["green_signal"], COLORS["red_signal"],
+           "#7B5EA7", "#1F7A8C"]
+for i, col in enumerate(returns.columns):
+    fig_ret.add_trace(go.Scatter(
+        x=returns.index, y=returns[col], name=col,
+        line=dict(color=palette[i % len(palette)], width=1.2)
+    ))
+fig_ret.update_layout(height=320, xaxis_title="Date", yaxis_title="Log Return")
+apply_plotly_theme(fig_ret)
+st.plotly_chart(fig_ret, use_container_width=True)
+
+# ── Correlation heatmap ───────────────────────────────────────
+st.markdown('<h2>Correlation Matrix</h2>', unsafe_allow_html=True)
+fig_corr = px.imshow(
+    corr_matrix.round(3), text_auto=True,
+    color_continuous_scale=[[0, COLORS["bg_base"]], [0.5, COLORS["amber_dim"]], [1, COLORS["amber"]]],
+    zmin=-1, zmax=1,
 )
+fig_corr.update_layout(height=420)
+apply_plotly_theme(fig_corr)
+st.plotly_chart(fig_corr, use_container_width=True)
 
-fig.add_trace(go.Scatter(
-    x=prices.index, y=prices, name="Price (USD)",
-    line=dict(color=COLORS["text_primary"], width=1.5)
-), row=1, col=1)
-
-fig.add_trace(go.Scatter(
-    x=prices.index, y=ma_short, name=f"MA {short_w}m",
-    line=dict(color=COLORS["amber"], width=1.5)
-), row=2, col=1)
-fig.add_trace(go.Scatter(
-    x=prices.index, y=ma_long, name=f"MA {long_w}m",
-    line=dict(color="#2E6DA4", width=1.5)
-), row=2, col=1)
-
-fig.add_trace(go.Scatter(
-    x=prices.index, y=index, name="Expectation Index",
-    line=dict(color=COLORS["amber"], width=1.3),
-    fill='tozeroy', fillcolor='rgba(200,126,10,0.08)',
-), row=3, col=1)
-fig.add_hline(y=0, line_dash="dot", line_color=COLORS["border"], line_width=1, row=3, col=1)
-
-fig.update_layout(height=760)
-apply_plotly_theme(fig)
-st.plotly_chart(fig, use_container_width=True)
+# ── VAR model ────────────────────────────────────────────────
+st.divider()
+st.markdown('<h2>VAR Model Summary</h2>', unsafe_allow_html=True)
+try:
+    model = VAR(returns)
+    res   = model.fit(lags)
+    st.code(str(res.summary()), language=None)
+except Exception as e:
+    st.error(f"VAR fitting error: {e}")
