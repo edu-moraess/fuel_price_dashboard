@@ -1,54 +1,119 @@
-# app.py (Revisado com atenção à indentação)
-
 import streamlit as st
 import pandas as pd
 from src.load_data import load_and_preprocess_data
 from src.config import DATA_PATH
 
-# --- Configuração da Página ---
+# =========================
+# 🔧 CONFIGURAÇÃO GLOBAL
+# =========================
 st.set_page_config(
-    page_title="Fuel Price Insights",
+    page_title="ETIL Macro Intelligence Terminal",
     page_icon="⛽",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# --- Título do Dashboard ---
-st.title("⛽ Fuel Price Insights Dashboard")
-st.markdown("### Análise Quantitativa Avançada de Preços de Combustíveis (IEA)")
+# =========================
+# 🧠 HEADER (IDENTIDADE DO SISTEMA)
+# =========================
+st.markdown(
+    """
+    # ⛽ ETIL Macro Intelligence Terminal
+    ### Fuel Prices • Regimes • Cointegration • Risk Signals • Macro Quant Research
+    """
+)
 
-# --- Carregamento de Dados Inicial ---
-@st.cache_data # Decorator
-def get_data(): # Definição de função
+st.divider()
+
+# =========================
+# 📦 DATA LAYER
+# =========================
+@st.cache_data
+def get_data():
     df = load_and_preprocess_data(DATA_PATH)
     return df
 
 df = get_data()
 
-# Armazenar o dataframe carregado no session_state para compartilhar com as páginas
-if 'df' not in st.session_state:
-    st.session_state['df'] = df
+if "df" not in st.session_state:
+    st.session_state["df"] = df
 
-# --- Sidebar Global ---
-st.sidebar.header("Configurações Globais")
+# =========================
+# 📊 SIDEBAR (RESEARCH DESK STYLE)
+# =========================
+st.sidebar.markdown("## 🧭 Research Desk")
+st.sidebar.caption("ETIL System Controls")
 
-# Exemplo de filtro global (poderia ser usado em todas as páginas)
-# available_countries = st.session_state.df['COUNTRY'].unique() if not st.session_state.df.empty else []
-# global_countries_filter = st.sidebar.multiselect("Países (Global)", options=available_countries, default=available_countries)
+st.sidebar.divider()
 
-# --- Mensagem Inicial na Home ---
+st.sidebar.markdown("### Modules")
+
+st.sidebar.markdown(
+"""
+- 📊 Cointegration Analysis  
+- 🔄 Regime Switching Models  
+- 🔮 Expectations & Signals  
+- 🔗 Spillovers & Risk Propagation  
+- 💼 Portfolio Simulation  
+"""
+)
+
+st.sidebar.divider()
+
+st.sidebar.markdown("### System Status")
+
+if not df.empty:
+    st.sidebar.success("Data Loaded")
+else:
+    st.sidebar.error("Data Missing")
+
+# =========================
+# 🏠 HOME DASHBOARD
+# =========================
 if "page" not in st.session_state:
     st.session_state.page = "Home"
 
-if st.session_state.page == "Home": # Bloco condicional
-    st.info("Bem-vindo ao Dashboard de Insights de Preços de Combustíveis!")
-    st.write("Selecione uma análise no menu lateral esquerdo.")
-    # Mostrar informações básicas sobre os dados carregados
-    if not df.empty: # Bloco condicional aninhado
-        st.write("**Informações sobre os dados carregados:**")
-        st.write(f"- Total de registros: {len(df)}")
-        st.write(f"- Período: {df['date'].min()} a {df['date'].max()}")
-        st.write(f"- Países disponíveis: {df['COUNTRY'].nunique()}")
-        st.write(f"- Produtos disponíveis: {', '.join([col.replace('_usd', '').title() for col in ['diesel_usd', 'gasoline_usd'] if col in df.columns])}")
+if st.session_state.page == "Home":
 
-# A navegação é feita automaticamente pelo Streamlit com base nos arquivos em 'pages/'
+    st.markdown("## 📊 Market Intelligence Overview")
+
+    st.write(
+        "System initialized. Select a module in the sidebar to run quantitative analysis."
+    )
+
+    if not df.empty:
+
+        # =========================
+        # 📈 KEY METRICS
+        # =========================
+        col1, col2, col3, col4 = st.columns(4)
+
+        col1.metric("Records", f"{len(df):,}")
+        col2.metric("Countries", df["COUNTRY"].nunique())
+        col3.metric("Start Date", str(df["date"].min())[:10])
+        col4.metric("End Date", str(df["date"].max())[:10])
+
+        st.divider()
+
+        # =========================
+        # 📦 COVERAGE SNAPSHOT
+        # =========================
+        st.markdown("### 📌 Market Coverage")
+
+        products = [
+            col.replace("_usd", "").title()
+            for col in ["diesel_usd", "gasoline_usd"]
+            if col in df.columns
+        ]
+
+        st.code(" | ".join(products))
+
+        st.divider()
+
+        # =========================
+        # 🧠 SYSTEM MESSAGE
+        # =========================
+        st.info(
+            "ETIL is a research-grade prototype for macro-energy quantitative analysis. "
+            "All outputs are exploratory and not investment advice."
+        )
