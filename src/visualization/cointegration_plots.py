@@ -53,4 +53,4 @@ def plot_cointegration_analysis(df_pivot, country_a, country_b, spread, z_score,
         fig.add_scatter(x=df_pivot.index[short_signal], y=z_score[short_signal], mode='markers', marker=dict(symbol='triangle-down', size=10, color='red'), name='Sinal Short', row=3, col=1)
 
     fig.update_layout(height=800, title_text=f"Cointegração: {country_a} vs {country_b}", showlegend=True)
-    return fig
+    return fig 
