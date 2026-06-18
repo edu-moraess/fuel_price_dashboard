@@ -97,4 +97,4 @@ def create_optimization_constraints_and_bounds(n_assets, weight_limits=(0, 1), t
         {'type': 'eq', 'fun': lambda w: np.sum(w) - total_weight}
     ]
     bounds = tuple(weight_limits for _ in range(n_assets))
-    return constraints, bounds
+    return constraints, bounds 
