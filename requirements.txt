@@ -1,0 +1,7 @@
+streamlit
+    pandas
+    numpy
+    plotly
+    statsmodels
+    scikit-learn # Talvez para detecção de anomalias ou ML
+    # ... outras que forem necessárias para as análises específicas
