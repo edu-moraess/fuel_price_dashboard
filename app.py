@@ -116,4 +116,4 @@ if st.session_state.page == "Home":
         st.info(
             "ETIL is a research-grade prototype for macro-energy quantitative analysis. "
             "All outputs are exploratory and not investment advice."
-        )
+        ) 
