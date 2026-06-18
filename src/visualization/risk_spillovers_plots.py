@@ -101,4 +101,4 @@ def plot_fevd(fevd_result, asset_name):
                 fig_fevd.add_trace(go.Scatter(x=decomp_df.index, y=decomp_df[col], mode='lines', name=col, stackgroup='one'))
             fig_fevd.update_layout(title=f'Contribuição de Spillover (FEVD) para {asset_name}', xaxis_title='Horizon (Steps)', yaxis_title='Proportion of Variance Explained')
             return fig_fevd
-    return None
+    return None 
