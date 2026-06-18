@@ -36,4 +36,4 @@ RISK_SPILLOVER_GARCH_LAGS = 1 # Lags para o modelo GARCH univariado (opcional)
 # --- Simulação de Portfólio ---
 PORTFOLIO_SIMULATION_DEFAULT_N_ASSETS = 5
 PORTFOLIO_SIMULATION_RETURN_COLUMN = 'return' # Nome da coluna de retorno calculado
-PORTFOLIO_SIMULATION_WEIGHTS_COLUMN = 'weight' # Nome da coluna de pesos
+PORTFOLIO_SIMULATION_WEIGHTS_COLUMN = 'weight' # Nome da coluna de pesos 
