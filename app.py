@@ -7,8 +7,8 @@ from src.config import DATA_PATH
 st.set_page_config(
     page_title="Fuel Price Insights",
     page_icon="⛽",
-    layout="wide", # Layout mais amplo
-    initial_sidebar_state="expanded", # Sidebar expandida por padrão
+    layout="wide",
+    initial_sidebar_state="expanded",
 )
 
 # --- Título do Dashboard ---
@@ -23,13 +23,16 @@ def get_data():
 
 df = get_data()
 
+# Armazenar o dataframe carregado no session_state para compartilhar com as páginas
+if 'df' not in st.session_state:
+    st.session_state['df'] = df
+
 # --- Sidebar Global ---
 st.sidebar.header("Configurações Globais")
 
-# Aqui você pode adicionar filtros globais se necessário,
-# embora cada página terá sua própria sidebar específica.
-# Exemplo:
-# selected_global_countries = st.sidebar.multiselect("Países (Global)", options=df['COUNTRY'].unique())
+# Exemplo de filtro global (poderia ser usado em todas as páginas)
+# available_countries = st.session_state.df['COUNTRY'].unique() if not st.session_state.df.empty else []
+# global_countries_filter = st.sidebar.multiselect("Países (Global)", options=available_countries, default=available_countries)
 
 # --- Mensagem Inicial na Home ---
 if "page" not in st.session_state:
@@ -38,8 +41,12 @@ if "page" not in st.session_state:
 if st.session_state.page == "Home":
     st.info("Bem-vindo ao Dashboard de Insights de Preços de Combustíveis!")
     st.write("Selecione uma análise no menu lateral esquerdo.")
-    # Você pode exibir uma visão geral aqui se quiser, ou deixar como página de boas-vindas.
-    # Porém, para 5 abas dedicadas, é comum não ter conteúdo extenso aqui.
+    # Mostrar informações básicas sobre os dados carregados
+    if not df.empty:
+        st.write("**Informações sobre os dados carregados:**")
+        st.write(f"- Total de registros: {len(df)}")
+        st.write(f"- Período: {df['date'].min()} a {df['date'].max()}")
+        st.write(f"- Países disponíveis: {df['COUNTRY'].nunique()}")
+        st.write(f"- Produtos disponíveis: {', '.join([col.replace('_usd', '').title() for col in ['diesel_usd', 'gasoline_usd'] if col in df.columns])}")
 
 # A navegação é feita automaticamente pelo Streamlit com base nos arquivos em 'pages/'
-# Mantenha este arquivo leve, apenas para configurações globais e carregamento inicial.
