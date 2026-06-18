@@ -11,7 +11,7 @@ warnings.filterwarnings('ignore')
 
 from src.load_data import filter_data_by_selection
 from src.config import COINTEGRATION_LOOKBACK_YEARS, COINTEGRATION_ZSCORE_THRESHOLD
-from src.bootstrap import init_session
+from src.session import init_session
 
 # --- Configuração da Página ---
 st.set_page_config(page_title="Cointegração", page_icon="📊", layout="wide")
@@ -79,8 +79,12 @@ else:
             prices_a = df_pivot[country_a]
             prices_b = df_pivot[country_b]
 
-            slope, intercept, r_value, p_value, std_err = linregress(prices_a, prices_b)
-            spread = prices_b - (slope * prices_a + intercept)
+            try:
+                slope, intercept, r_value, p_value, std_err = linregress(prices_a, prices_b)
+                spread = prices_b - (slope * prices_a + intercept)
+            except Exception as e:
+                st.error(f"Erro na regressão linear: {e}")
+                st.stop()
 
             spread_mean = spread.rolling(window=lookback_years * 12, min_periods=1).mean()
             spread_std = spread.rolling(window=lookback_years * 12, min_periods=1).std()

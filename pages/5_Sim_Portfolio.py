@@ -7,7 +7,7 @@ from scipy.optimize import minimize
 
 from src.load_data import filter_data_by_selection
 from src.config import PORTFOLIO_SIMULATION_DEFAULT_N_ASSETS
-from src.bootstrap import init_session
+from src.session import init_session
 
 st.set_page_config(page_title="Portfolio", page_icon="💼", layout="wide")
 st.title("💼 Simulação de Portfólio")
@@ -50,18 +50,28 @@ if not dfs:
 
 returns = pd.concat(dfs, axis=1).dropna()
 
+if returns.empty:
+    st.error("Dados insuficientes para otimização de portfólio após alinhar as datas.")
+    st.stop()
+
 def perf(w):
     ret = returns.mean().dot(w) * 12
-    vol = np.sqrt(w.T @ returns.cov().values @ w) * np.sqrt(12)
+    vol = np.sqrt(w.T @ (returns.cov().values) @ w) * np.sqrt(12)
     return ret, vol
 
 def sharpe(w):
     r, v = perf(w)
+    if v == 0: return 0
     return -(r / v)
 
 n = len(returns.columns)
 w0 = np.ones(n) / n
 
-res = minimize(sharpe, w0, bounds=[(0,1)]*n, constraints={'type':'eq','fun':lambda w: w.sum()-1})
-
-st.write("Pesos ótimos:", res.x)
+try:
+    res = minimize(sharpe, w0, bounds=[(0,1)]*n, constraints={'type':'eq','fun':lambda w: w.sum()-1})
+    if res.success:
+        st.write("Pesos ótimos:", pd.Series(res.x, index=returns.columns))
+    else:
+        st.error("A otimização não convergiu.")
+except Exception as e:
+    st.error(f"Erro na otimização: {e}")

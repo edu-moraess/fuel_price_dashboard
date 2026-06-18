@@ -7,7 +7,7 @@ from plotly.subplots import make_subplots
 
 from src.load_data import filter_data_by_selection
 from src.config import IMPLIED_EXPECT_SHORT_WINDOW, IMPLIED_EXPECT_LONG_WINDOW
-from src.bootstrap import init_session
+from src.session import init_session
 
 st.set_page_config(page_title="Expectativas Implícitas", page_icon="🔮", layout="wide")
 st.title("🔮 Expectativas Implícitas")

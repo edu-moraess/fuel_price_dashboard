@@ -8,7 +8,7 @@ from statsmodels.tsa.vector_ar.var_model import VAR
 
 from src.load_data import filter_data_by_selection
 from src.config import RISK_SPILLOVER_VAR_LAGS
-from src.bootstrap import init_session
+from src.session import init_session
 
 st.set_page_config(page_title="Spillovers", page_icon="🔗", layout="wide")
 st.title("🔗 Spillovers de Risco")
@@ -44,9 +44,19 @@ if df_filtered.empty:
 
 pivot = df_filtered.pivot(index='date', columns='COUNTRY', values=product).dropna()
 
+if pivot.shape[1] < 2:
+    st.error("Selecione pelo menos 2 países para análise de spillovers.")
+    st.stop()
+
 returns = np.log(pivot).diff().dropna()
 
-model = VAR(returns)
-res = model.fit(lags)
+if returns.empty:
+    st.error("Dados insuficientes após calcular retornos.")
+    st.stop()
 
-st.text(res.summary())
+try:
+    model = VAR(returns)
+    res = model.fit(lags)
+    st.text(res.summary())
+except Exception as e:
+    st.error(f"Erro ao ajustar o modelo VAR: {e}")

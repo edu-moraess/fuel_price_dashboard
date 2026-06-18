@@ -47,7 +47,8 @@ def plot_network_simple(corr_matrix, threshold=0.1):
     edges = []
     weights = []
     for i in range(len(nodes)):
-        for j in range(i+1, len(nodes)):            weight = abs(corr_matrix.iloc[i, j])
+        for j in range(i+1, len(nodes)):
+            weight = abs(corr_matrix.iloc[i, j])
             if weight > threshold:
                 edges.append((nodes[i], nodes[j]))
                 weights.append(weight)
@@ -96,7 +97,8 @@ def plot_fevd(fevd_result, asset_name):
             decomp_df.index.name = 'Horizon'
 
             fig_fevd = go.Figure()
-            for col in decomp_df.columns:                 fig_fevd.add_trace(go.Scatter(x=decomp_df.index, y=decomp_df[col], mode='lines', name=col, stackgroup='one'))
+            for col in decomp_df.columns:
+                fig_fevd.add_trace(go.Scatter(x=decomp_df.index, y=decomp_df[col], mode='lines', name=col, stackgroup='one'))
             fig_fevd.update_layout(title=f'Contribuição de Spillover (FEVD) para {asset_name}', xaxis_title='Horizon (Steps)', yaxis_title='Proportion of Variance Explained')
             return fig_fevd
     return None
