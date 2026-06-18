@@ -63,4 +63,4 @@ def plot_portfolio_simulation(returns_df, weights_max_sharpe, weights_min_var, p
 
 # Se a função calculate_portfolio_metrics for usada fora deste módulo, talvez deva ser importada
 # ou duplicada aqui. Por simplicidade, está sendo chamada diretamente acima.
-# from src.analysis.portfolio_simulation import calculate_portfolio_metrics
+# from src.analysis.portfolio_simulation import calculate_portfolio_metrics 
