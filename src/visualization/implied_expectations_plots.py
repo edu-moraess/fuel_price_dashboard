@@ -44,4 +44,4 @@ def plot_expectation_analysis(prices, ma_short, ma_long, expectation_index, uppe
     fig.add_hline(y=0, line_dash="solid", line_color="gray", row=3, col=1)
 
     fig.update_layout(height=800, title_text=f"Índice de Expectativas - {country} ({product})", showlegend=True)
-    return fig
+    return fig 
