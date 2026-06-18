@@ -13,4 +13,4 @@ def init_session():
         df = load_and_preprocess_data(DATA_PATH)
         st.session_state.df = df
 
-    return st.session_state.df
+    return st.session_state.df 
