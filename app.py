@@ -1,3 +1,5 @@
+# app.py (Revisado com atenção à indentação)
+
 import streamlit as st
 import pandas as pd
 from src.load_data import load_and_preprocess_data
@@ -16,8 +18,8 @@ st.title("⛽ Fuel Price Insights Dashboard")
 st.markdown("### Análise Quantitativa Avançada de Preços de Combustíveis (IEA)")
 
 # --- Carregamento de Dados Inicial ---
-@st.cache_data # Cache para otimizar o carregamento
-def get_data():
+@st.cache_data # Decorator
+def get_data(): # Definição de função
     df = load_and_preprocess_data(DATA_PATH)
     return df
 
@@ -38,11 +40,11 @@ st.sidebar.header("Configurações Globais")
 if "page" not in st.session_state:
     st.session_state.page = "Home"
 
-if st.session_state.page == "Home":
+if st.session_state.page == "Home": # Bloco condicional
     st.info("Bem-vindo ao Dashboard de Insights de Preços de Combustíveis!")
     st.write("Selecione uma análise no menu lateral esquerdo.")
     # Mostrar informações básicas sobre os dados carregados
-    if not df.empty:
+    if not df.empty: # Bloco condicional aninhado
         st.write("**Informações sobre os dados carregados:**")
         st.write(f"- Total de registros: {len(df)}")
         st.write(f"- Período: {df['date'].min()} a {df['date'].max()}")
