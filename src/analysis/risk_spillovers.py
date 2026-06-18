@@ -93,4 +93,4 @@ def calculate_correlation_matrix(returns_df):
     Returns:
         pd.DataFrame: Matriz de correlação.
     """
-    return returns_df.corr()
+    return returns_df.corr() 
