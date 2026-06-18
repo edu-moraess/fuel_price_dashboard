@@ -44,4 +44,4 @@ def calculate_percentile_thresholds(expectation_index, window=24, high_percentil
     """
     upper_threshold = expectation_index.rolling(window=window).quantile(high_percentile / 100.0)
     lower_threshold = expectation_index.rolling(window=window).quantile(low_percentile / 100.0)
-    return upper_threshold, lower_threshold
+    return upper_threshold, lower_threshold 
