@@ -67,4 +67,4 @@ def generate_trade_signals(z_scores, threshold=2.0):
     """
     long_signal = z_scores < -threshold
     short_signal = z_scores > threshold
-    return long_signal, short_signal
+    return long_signal, short_signal 
