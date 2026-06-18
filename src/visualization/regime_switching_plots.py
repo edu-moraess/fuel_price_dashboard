@@ -37,4 +37,4 @@ def plot_regime_switching_analysis(prices, returns, smoothed_probs, num_regimes)
         fig.add_trace(go.Scatter(x=smoothed_probs.index, y=smoothed_probs.iloc[:, i], mode='lines', name=f'Regime {i+1}', stackgroup='one'), row=3, col=1)
 
     fig.update_layout(height=800, title_text=f"Mudança de Regime - {num_regimes} Regimes", showlegend=True)
-    return fig
+    return fig 
