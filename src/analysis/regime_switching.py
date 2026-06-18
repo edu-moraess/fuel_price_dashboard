@@ -46,4 +46,4 @@ def predict_regime_probability(model_result, steps=1):
     latest_smoothed_probs = model_result.smoothed_marginal_probabilities.iloc[-1:]
     # Repete para o número de steps desejados
     future_probs = pd.concat([latest_smoothed_probs]*steps, ignore_index=True)
-    return future_probs
+    return future_probs 
