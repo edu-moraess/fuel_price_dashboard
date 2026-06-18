@@ -92,4 +92,4 @@ def filter_data_by_selection(df, countries=None, products=None, start_date=None,
 #     from config import DATA_PATH
 #     df = load_and_preprocess_data(DATA_PATH)
 #     print(df.head())
-#     print(df.info())
+#     print(df.info()) 
