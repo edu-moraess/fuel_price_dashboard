@@ -1,4 +1,4 @@
-# pages/4_🔗_Spillovers_Risco.py (Revisado com atenção à indentação)
+# pages/4_🔗_Spillovers_Risco.py
 
 import streamlit as st
 import pandas as pd
@@ -105,12 +105,13 @@ else:
                             edges.append((nodes[i], nodes[j]))
                             weights.append(weight)
 
-                if edges: # Bloco condicional para o grafo de rede
+                # Verifica se há conexões para mostrar no grafo de rede
+                if edges:
                     edge_source = [nodes.index(e[0]) for e in edges]
                     edge_target = [nodes.index(e[1]) for e in edges]
                     edge_width = [w * 10 for w in weights] # Escalonar peso para espessura da linha
 
-                    fig_net = go.Figure(data=go.Sankey( # Indentação correta para a criação do Sankey
+                    fig_net = go.Figure(data=go.Sankey(
                         node = dict(
                           pad = 15,
                           thickness = 20,
@@ -126,17 +127,17 @@ else:
 
                     fig_net.update_layout(title_text="Rede de Conectividade (Correlação > 0.1)", font_size=10)
                     st.plotly_chart(fig_net, use_container_width=True)
-                else: # Bloco else correspondente ao if edges:
+                else:
                     st.info("Nenhuma correlação acima do limiar de 0.1 encontrada para o gráfico de rede.")
 
                 # Gráfico 4: Contribuição de Spillover (FEVD) - Exemplo para o primeiro país
-                if fevd is not None: # Bloco condicional para FEVD
+                if fevd is not None:
                     country_for_fevd = returns_scaled.columns[0]
                     fevd_df = pd.DataFrame(fevd.decomp_dict[country_for_fevd], index=range(1, fevd.periods+1), columns=returns_scaled.columns)
                     fevd_df.index.name = 'Horizon'
                     fig_fevd = go.Figure()
-                    for col in fevd_df.columns: # Loop interno
-                         fig_fevd.add_trace(go.Scatter(x=fevd_df.index, y=fevd_df[col], mode='lines', name=col, stackgroup='one')) # Indentação correta para add_trace
+                    for col in fevd_df.columns:
+                         fig_fevd.add_trace(go.Scatter(x=fevd_df.index, y=fevd_df[col], mode='lines', name=col, stackgroup='one'))
                     fig_fevd.update_layout(title=f'Contribuição de Spillover (FEVD) para {country_for_fevd}', xaxis_title='Horizon (Steps)', yaxis_title='Proportion of Variance Explained')
                     st.plotly_chart(fig_fevd, use_container_width=True)
 
@@ -144,8 +145,8 @@ else:
                 st.subheader("Resultados do Modelo VAR")
                 st.text(var_results.summary())
 
-                # Dados para download
-                results_df = returns_log.copy()                results_df.columns = [f"log_return_{col}" for col in results_df.columns]
+                # Dados para download                results_df = returns_log.copy()
+                results_df.columns = [f"log_return_{col}" for col in results_df.columns]
 
                 st.download_button(
                     label="Download dos Dados Processados (Retornos)",
@@ -154,6 +155,6 @@ else:
                     mime='text/csv',
                 )
 
-            except Exception as e: # Bloco except correspondente ao try
+            except Exception as e:
                 st.error(f"Erro ao ajustar o modelo VAR ou calcular FEVD: {e}")
                 st.write("Verifique se há dados suficientes e se o número de lags é apropriado.")
